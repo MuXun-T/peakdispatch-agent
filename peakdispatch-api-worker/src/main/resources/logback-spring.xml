@@ -1,0 +1,30 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <timeZone>UTC</timeZone>
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <defaultMask>[REDACTED]</defaultMask>
+                <path>authorization</path>
+                <path>phone</path>
+                <path>mobile</path>
+                <path>email</path>
+                <path>address</path>
+                <path>name</path>
+                <path>token</path>
+                <path>offerToken</path>
+                <path>accessToken</path>
+                <path>refreshToken</path>
+                <path>idToken</path>
+                <path>apiKey</path>
+                <path>password</path>
+                <path>secret</path>
+                <path>credential</path>
+                <path>credentials</path>
+                <valueMasker class="com.peakdispatch.config.SensitiveLogValueMasker"/>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

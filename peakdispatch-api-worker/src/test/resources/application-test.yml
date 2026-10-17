@@ -1,0 +1,64 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:peakdispatch;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      connection-init-sql:
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 1
+  elasticsearch:
+    uris: http://127.0.0.1:1
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+management:
+  health:
+    redis:
+      enabled: false
+    elasticsearch:
+      enabled: false
+peakdispatch:
+  rate-limit:
+    enabled: false
+  dispatch:
+    redis-gate-enabled: false
+  security:
+    offer-encryption-key: test-only-offer-encryption-key-not-for-production
+  runtime:
+    role: ALL
+  demo:
+    users:
+      merchant:
+        username: merchant-test
+        password: merchant-test-password
+        role: MERCHANT
+      courier:
+        username: courier-test
+        password: courier-test-password
+        role: COURIER
+      ops-viewer:
+        username: ops-viewer-test
+        password: ops-viewer-test-password
+        role: OPS_VIEWER
+        region-scopes: [test-other-region]
+      ops-approver:
+        username: approver-test
+        password: approver-test-password
+        role: OPS_APPROVER
+      ops-approver-backup:
+        username: approver-backup-test
+        password: approver-backup-test-password
+        role: OPS_APPROVER
+      ops-admin:
+        username: ops-admin-test
+        password: ops-admin-test-password
+        role: OPS_ADMIN

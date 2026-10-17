@@ -1,0 +1,152 @@
+services:
+  mysql:
+    image: mysql:8.4.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-peakdispatch}
+      MYSQL_USER: ${MYSQL_USER:-peakdispatch}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      TZ: UTC
+    command: ["--default-time-zone=+00:00", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    ports:
+      - "${MYSQL_PORT_FORWARD:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+
+  redis:
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT_FORWARD:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms512m -Xmx512m}
+    ports:
+      - "${ELASTICSEARCH_PORT_FORWARD:-9200}:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=2s' >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment: &app-environment
+      SPRING_PROFILES_ACTIVE: demo
+      PD_RUNTIME_ROLE: API
+      SERVER_PORT: 8080
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-peakdispatch}
+      MYSQL_USER: ${MYSQL_USER:-peakdispatch}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PD_ENV: ${PD_ENV:-demo}
+      PD_OUTBOX_DELAY_MS: ${PD_OUTBOX_DELAY_MS:-500}
+      PD_OUTBOX_MAX_ATTEMPTS: ${PD_OUTBOX_MAX_ATTEMPTS:-10}
+      PD_OUTBOX_CLAIM_SECONDS: ${PD_OUTBOX_CLAIM_SECONDS:-30}
+      PD_AGENT_MODEL_PROVIDER: ${PD_AGENT_MODEL_PROVIDER:-mock}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_CONNECT_TIMEOUT_MS: ${DEEPSEEK_CONNECT_TIMEOUT_MS:-3000}
+      DEEPSEEK_TIMEOUT_MS: ${DEEPSEEK_TIMEOUT_MS:-15000}
+      ELASTICSEARCH_URIS: http://elasticsearch:9200
+      PD_DEMO_MERCHANT_PASSWORD: ${PD_DEMO_MERCHANT_PASSWORD:?set demo passwords in .env}
+      PD_DEMO_COURIER_PASSWORD: ${PD_DEMO_COURIER_PASSWORD:?set demo passwords in .env}
+      PD_DEMO_OPS_VIEWER_PASSWORD: ${PD_DEMO_OPS_VIEWER_PASSWORD:?set demo passwords in .env}
+      PD_DEMO_OPS_APPROVER_PASSWORD: ${PD_DEMO_OPS_APPROVER_PASSWORD:?set demo passwords in .env}
+      PD_DEMO_OPS_APPROVER_BACKUP_PASSWORD: ${PD_DEMO_OPS_APPROVER_BACKUP_PASSWORD:?set demo passwords in .env}
+      PD_DEMO_OPS_ADMIN_PASSWORD: ${PD_DEMO_OPS_ADMIN_PASSWORD:?set demo passwords in .env}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "${API_PORT_FORWARD:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app-environment
+      PD_RUNTIME_ROLE: WORKER
+      SERVER_PORT: 8081
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT_FORWARD:-4173}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  mysql-data:
+  redis-data:
+  elasticsearch-data:

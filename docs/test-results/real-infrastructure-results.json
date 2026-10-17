@@ -1,0 +1,199 @@
+﻿{
+    "generatedAt":  "2026-10-13T13:29:20.9862564Z",
+    "workspace":  "E:\\code\\agent\\peakdispatch-agent",
+    "runtime":  {
+                    "java":  "openjdk version \"21.0.12.1\" 2026-08-18 LTS"
+                },
+    "infrastructure":  {
+                           "docker":  "NOT_INSTALLED",
+                           "mysql":  "NOT_AVAILABLE",
+                           "redis":  "NOT_AVAILABLE",
+                           "redisCluster":  "NOT_CONFIGURED",
+                           "elasticsearch":  "NOT_AVAILABLE"
+                       },
+    "maven":  {
+                  "command":  ".\\mvnw.cmd -B -ntp clean verify",
+                  "status":  "PASS",
+                  "exitCode":  0
+              },
+    "surefire":  {
+                     "tests":  119,
+                     "passed":  85,
+                     "failures":  0,
+                     "errors":  0,
+                     "skipped":  34
+                 },
+    "tests":  [
+                  {
+                      "id":  "REAL-MYSQL-REDIS-CONCURRENCY",
+                      "status":  "NOT RUN",
+                      "evidence":  "RealMySqlRedisConcurrencyIntegrationTest (MySQL 8.4.4 + Redis 7.4.2 Testcontainers)"
+                  },
+                  {
+                      "id":  "REAL-REDIS-RECOVERY",
+                      "status":  "NOT RUN",
+                      "evidence":  "RedisRecoveryIntegrationTest (Redis 7.4.2 Testcontainers; H2 database, not a MySQL result)"
+                  },
+                  {
+                      "id":  "REAL-REDIS-CLUSTER-SLOT",
+                      "status":  "NOT RUN",
+                      "evidence":  "RedisClusterScriptContractTest with PD_REDIS_CLUSTER_HOST/PORT"
+                  },
+                  {
+                      "id":  "REAL-ELASTICSEARCH",
+                      "status":  "NOT RUN",
+                      "evidence":  "No live Elasticsearch test is configured"
+                  }
+              ],
+    "java21RuntimeVerification":  {
+                                      "status":  "PASS",
+                                      "javaVersion":  "openjdk version \"21.0.12.1\" 2026-08-18 LTS",
+                                      "javaHome":  "C:\\Users\\29374\\AppData\\Local\\Temp\\peakdispatch-jdk21\\jdk-21.0.12.1+1",
+                                      "evidence":  "Full Maven clean verify executed with the active Java 21 runtime"
+                                  },
+    "mysqlRedisCases":  [
+                            {
+                                "id":  "MYSQL-ROW-LOCK-CAS-LAST-CAPACITY",
+                                "method":  "mysqlRowLockAndVersionCas_allowOnlyOneLastCapacityOffer",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-DUPLICATE-OFFER-ACCEPT",
+                                "method":  "duplicateAccepts_createOneAssignmentAndOneCapacityCommit",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-OFFER-ACCEPT-TIMEOUT-RACE",
+                                "method":  "acceptAndTimeoutAtExpiry_competeThroughOfferRowLock",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-GENERATION-ACCEPT-RACE",
+                                "method":  "generationChange_racingAccept_neverAcceptsOldGenerationAfterFence",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-DUAL-WORKER-SAME-ORDER",
+                                "method":  "twoWorkersForOneOrder_createAtMostOneOffer",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "REDIS-LEASE-DB-ROLLBACK",
+                                "method":  "redisLeaseRollback_releasesProvisionalLease_andCapacityRemainsDbAuthoritative",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-REBUILD-LOST-CAPACITY-KEY",
+                                "method":  "capacityKeyLossIsRebuiltFromMysqlAndFirstReserveFailsClosed",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "REDIS-OUTAGE-RECOVERY-AND-DISPATCH-GATE",
+                                "method":  "databaseCommitSurvivesRedisNotificationFailureAndOutboxReplaysAfterRedisReturns",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "STREAM-DUPLICATE-CONSUMPTION-INBOX",
+                                "method":  "duplicateStreamDeliveryHasOneDatabaseEffectAndOneInboxCompletion",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "OLD-COURIER-GENERATION-FENCE",
+                                "method":  "newCourierGenerationRejectsOldOfferAndCannotRestoreOldGeoIndex",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-COMMIT-BEFORE-ACK-RECOVERY",
+                                "method":  "dbCommitBeforeAckFailureIsRecoveredByInboxWithoutRepeatingOrderEffect",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-INBOX-DLQ-REPLAY",
+                                "method":  "mysqlInboxAndRedisDlqReplayAreIdempotentAfterHandlerFailure",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-DLQ-FAILURE-PENDING-RECOVERY",
+                                "method":  "failedDlqWriteLeavesMysqlInboxAndStreamPendingUntilDlqRecovers",
+                                "status":  "NOT RUN"
+                            },
+                            {
+                                "id":  "MYSQL-OUTBOX-DUPLICATE-XADD",
+                                "method":  "outboxXaddBeforePublishedMarkCanDuplicateStreamEntryButInboxEffectIsOnce",
+                                "status":  "NOT RUN"
+                            }
+                        ],
+    "redisRecoveryCases":  [
+                               {
+                                   "id":  "REDIS-PRESENCE-GEO-HEARTBEAT-CAPACITY-LEASE-LUA",
+                                   "method":  "luaPresenceGeoFenceCapacityAndLeaseRecoveryAreAtomic",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DELAYED-OFFER-COMPLETE-IDEMPOTENT",
+                                   "method":  "redisOfferDelayQueueClaimsAndCompletesDueOfferIdempotently",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DELAYED-OFFER-CLAIM-FENCING",
+                                   "method":  "expiredOfferDelayClaimCanBeReclaimedAndReleaseIsAtomicAndTokenFenced",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DELAYED-OFFER-BATCH-LIMIT",
+                                   "method":  "delayedOfferClaimsRespectBatchLimitAcrossDueAndExpiredItems",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-OLD-GENERATION-GEO-FENCE",
+                                   "method":  "oldGenerationCannotRecreateGeoAfterSessionFence",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-HEARTBEAT-EXPIRY-GEO-FENCE",
+                                   "method":  "expiredHeartbeatIsRemovedFromGeoAndFenceRejectsDelayedIndexWrite",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-PROJECTION-RECONCILIATION",
+                                   "method":  "reconciliationRepairsSameSequenceCoordinateDrift",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-INBOX-ACK-FAILURE-XAUTOCLAIM",
+                                   "method":  "duplicateEventIdProcessesOnceAndAckFailureRecoversThroughXAutoClaim",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-HANDLER-FAILURE-XAUTOCLAIM",
+                                   "method":  "failedHandlerRemainsPendingThenSucceedsOnXAUTOCLAIMRetry",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DLQ-ACK-ORDER",
+                                   "method":  "failedHandlerIsAckedOnlyAfterConsumerDlqWriteSucceeds",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DLQ-REPLAY-INBOX-DEDUPE",
+                                   "method":  "consumerDlqReplayRequeuesTheEventAndDeduplicatesTheInboxRecord",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-DLQ-UNAVAILABLE-PENDING",
+                                   "method":  "unavailableConsumerDlqLeavesMalformedRecordPending",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-XAUTOCLAIM-PAGING",
+                                   "method":  "xAutoClaimContinuesAcrossPendingPages",
+                                   "status":  "NOT RUN"
+                               },
+                               {
+                                   "id":  "REDIS-AVAILABILITY-FAIL-CLOSED",
+                                   "method":  "redisAvailabilityProbeFailsClosedWhenRedisIsUnavailable",
+                                   "status":  "NOT RUN"
+                               }
+                           ],
+    "policy":  "H2, Mockito, and standalone unit tests are never counted as real MySQL + Redis PASS."
+}

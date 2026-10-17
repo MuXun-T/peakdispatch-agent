@@ -1,0 +1,1 @@
+ALTER TABLE delivery_order ADD COLUMN preparation_ready BOOLEAN NOT NULL DEFAULT FALSE;

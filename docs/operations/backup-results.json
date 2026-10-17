@@ -1,0 +1,10 @@
+{
+  "generatedAtUtc": "2026-10-13T12:38:39.2077184Z",
+  "status": "NOT RUN",
+  "procedure": "scripts/backup-mysql.ps1",
+  "scheduleProcedure": "scripts/register-mysql-backup-task.ps1",
+  "retentionDays": 7,
+  "validation": ["mysqldump archive is non-empty", "ZIP entry validation", "SHA-256 sidecar and manifest", "expired archive pruning"],
+  "reason": "No MySQL endpoint or mysqldump client was available in the validation environment; no backup archive or credential was created.",
+  "secretsPrinted": false
+}

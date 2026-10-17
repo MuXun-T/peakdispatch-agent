@@ -1,0 +1,111 @@
+spring:
+  application:
+    name: peakdispatch-agent
+  profiles:
+    default: demo
+  task:
+    scheduling:
+      pool:
+        size: ${PD_SCHEDULING_POOL_SIZE:4}
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:peakdispatch}?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+    username: ${MYSQL_USER:peakdispatch}
+    password: ${MYSQL_PASSWORD:}
+    hikari:
+      connection-init-sql: SET time_zone = '+00:00'
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+  flyway:
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  main:
+    banner-mode: "off"
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+  health:
+    elasticsearch:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      percentiles-histogram:
+        http.server.requests: true
+
+peakdispatch:
+  runtime:
+    role: ${PD_RUNTIME_ROLE:ALL}
+    data-mode: ${PD_DATA_MODE:simulation}
+  redis:
+    environment: ${PD_ENV:demo}
+  worker:
+    outbox-delay-ms: ${PD_OUTBOX_DELAY_MS:500}
+    outbox-max-attempts: ${PD_OUTBOX_MAX_ATTEMPTS:10}
+    outbox-claim-seconds: ${PD_OUTBOX_CLAIM_SECONDS:30}
+    stream-poll-delay-ms: ${PD_STREAM_POLL_DELAY_MS:250}
+    stream-batch-size: ${PD_STREAM_BATCH_SIZE:10}
+    redis-reconcile-delay-ms: ${PD_REDIS_RECONCILE_DELAY_MS:30000}
+    lifecycle-delay-ms: ${PD_LIFECYCLE_SCAN_DELAY_MS:60000}
+    dispatch-delay-ms: ${PD_DISPATCH_SCAN_DELAY_MS:60000}
+    offer-timeout-delay-ms: ${PD_OFFER_TIMEOUT_SCAN_DELAY_MS:1000}
+  rate-limit:
+    enabled: ${PD_RATE_LIMIT_ENABLED:true}
+    window-ms: ${PD_RATE_LIMIT_WINDOW_MS:1000}
+    user-per-window: ${PD_RATE_LIMIT_USER:60}
+    role-per-window: ${PD_RATE_LIMIT_ROLE:600}
+    region-per-window: ${PD_RATE_LIMIT_REGION:300}
+    api-per-window: ${PD_RATE_LIMIT_API:120}
+  agent:
+    concurrency:
+      max-runs-per-user: ${PD_AGENT_MAX_RUNS_PER_USER:3}
+      max-model-calls: ${PD_AGENT_MAX_MODEL_CALLS:8}
+      lease-seconds: ${PD_AGENT_CONCURRENCY_LEASE_SECONDS:180}
+    model:
+      provider: ${PD_AGENT_MODEL_PROVIDER:mock}
+    deepseek:
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      api-key: ${DEEPSEEK_API_KEY:}
+      model: ${DEEPSEEK_MODEL:deepseek-flash}
+      connect-timeout-ms: ${DEEPSEEK_CONNECT_TIMEOUT_MS:3000}
+      timeout-ms: ${DEEPSEEK_TIMEOUT_MS:15000}
+  retention:
+    location-detail: ${PD_RETENTION_LOCATION:PT24H}
+    agent-run: ${PD_RETENTION_AGENT:P30D}
+    audit: ${PD_RETENTION_AUDIT:P90D}
+    retry-attempts: ${PD_RETENTION_RETRY_ATTEMPTS:3}
+    run-delay-ms: ${PD_RETENTION_RUN_DELAY_MS:86400000}
+    initial-delay-ms: ${PD_RETENTION_INITIAL_DELAY_MS:86400000}
+  metrics:
+    collect-delay-ms: ${PD_METRICS_COLLECT_DELAY_MS:15000}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN

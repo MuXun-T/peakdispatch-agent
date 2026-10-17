@@ -1,0 +1,127 @@
+﻿{
+    "generatedAt":  "2026-10-13T13:29:21.0239693Z",
+    "infrastructure":  {
+                           "docker":  "NOT_INSTALLED",
+                           "mysql":  "NOT_AVAILABLE",
+                           "redis":  "NOT_AVAILABLE",
+                           "redisCluster":  "NOT_CONFIGURED",
+                           "elasticsearch":  "NOT_AVAILABLE"
+                       },
+    "scenarios":  [
+                      {
+                          "scenario":  "Redis unavailable; dispatch gate pauses",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#databaseCommitSurvivesRedisNotificationFailureAndOutboxReplaysAfterRedisReturns",
+                          "assertions":  [
+                                             "dispatch readiness is false while Redis is stopped",
+                                             "no Offer is created during outage",
+                                             "unpublished Outbox data survives and is delivered after recovery",
+                                             "projection rebuild restores readiness",
+                                             "capacity and Offer/Assignment ledger invariants hold"
+                                         ]
+                      },
+                      {
+                          "scenario":  "Consumer process crash",
+                          "status":  "NOT RUN",
+                          "evidence":  "No forked Worker process-kill test is configured",
+                          "assertions":  [
+
+                                         ]
+                      },
+                      {
+                          "scenario":  "DB commit before XACK process crash",
+                          "status":  "NOT RUN",
+                          "evidence":  "The ACK failure window is injected, but no Worker process is killed",
+                          "assertions":  [
+                                             "Inbox DB commit precedes ACK attempt",
+                                             "failed ACK leaves the entry Pending",
+                                             "redelivery does not repeat the order effect",
+                                             "Pending entry is ACKed after recovery"
+                                         ]
+                      },
+                      {
+                          "scenario":  "XADD before Outbox published mark process crash",
+                          "status":  "NOT RUN",
+                          "evidence":  "Duplicate-XADD window is reproduced, but no Worker process is killed",
+                          "assertions":  [
+                                             "the event can appear twice in the Stream",
+                                             "Outbox eventually becomes published",
+                                             "Inbox applies the event once"
+                                         ]
+                      },
+                      {
+                          "scenario":  "Outbox duplicate XADD has one Inbox effect",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#outboxXaddBeforePublishedMarkCanDuplicateStreamEntryButInboxEffectIsOnce",
+                          "assertions":  [
+                                             "the event appears twice in the Stream",
+                                             "Outbox becomes published",
+                                             "Inbox attempt count remains one",
+                                             "capacity and Offer/Assignment ledger invariants hold"
+                                         ]
+                      },
+                      {
+                          "scenario":  "Handler failure remains Pending until DLQ recovers",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#failedDlqWriteLeavesMysqlInboxAndStreamPendingUntilDlqRecovers",
+                          "assertions":  [
+                                             "Inbox stays PROCESSING and source stays Pending while DLQ write fails",
+                                             "source is ACKed only after DLQ write and Inbox DEAD_LETTER commit",
+                                             "capacity and Offer/Assignment ledger invariants hold"
+                                         ]
+                      },
+                      {
+                          "scenario":  "XAUTOCLAIM recovery",
+                          "status":  "NOT RUN",
+                          "evidence":  "The test makes the Pending entry idle, then the consumer recovery path reclaims it",
+                          "assertions":  [
+                                             "idle Pending entry is reclaimed",
+                                             "recovered handler completes DLQ and Inbox state",
+                                             "source Pending entry is cleared"
+                                         ]
+                      },
+                      {
+                          "scenario":  "DLQ write failure",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#failedDlqWriteLeavesMysqlInboxAndStreamPendingUntilDlqRecovers",
+                          "assertions":  [
+                                             "failed DLQ write leaves Inbox PROCESSING",
+                                             "source remains Pending and is not ACKed",
+                                             "retry writes one DLQ entry before ACK"
+                                         ]
+                      },
+                      {
+                          "scenario":  "DLQ replay",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#mysqlInboxAndRedisDlqReplayAreIdempotentAfterHandlerFailure",
+                          "assertions":  [
+                                             "first replay is accepted and duplicate replay is a no-op",
+                                             "Inbox reaches PROCESSED",
+                                             "source Pending entry is cleared",
+                                             "repeated replay has no extra DLQ side effect"
+                                         ]
+                      },
+                      {
+                          "scenario":  "Capacity key loss and MySQL rebuild",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#capacityKeyLossIsRebuiltFromMysqlAndFirstReserveFailsClosed",
+                          "assertions":  [
+                                             "first reserve fails closed after key loss",
+                                             "capacity projection is rebuilt from MySQL",
+                                             "later reserve succeeds and repeated release is idempotent",
+                                             "capacity limit and ledger invariants hold"
+                                         ]
+                      },
+                      {
+                          "scenario":  "Redis recovery pauses dispatch, rebuilds, then resumes",
+                          "status":  "NOT RUN",
+                          "evidence":  "RealMySqlRedisConcurrencyIntegrationTest#databaseCommitSurvivesRedisNotificationFailureAndOutboxReplaysAfterRedisReturns",
+                          "assertions":  [
+                                             "dispatch pauses during Redis loss",
+                                             "derived presence/capacity state is rebuilt before readiness returns",
+                                             "dispatch resumes after rebuild",
+                                             "capacity and Offer/Assignment ledger invariants hold"
+                                         ]
+                      }
+                  ]
+}

@@ -1,0 +1,42 @@
+spring:
+  config:
+    activate:
+      on-profile: demo
+
+peakdispatch:
+  runtime:
+    data-mode: simulation
+  security:
+    offer-encryption-key: ${PEAKDISPATCH_OFFER_ENCRYPTION_KEY:demo-only-change-this-offer-encryption-key}
+    bcrypt-strength: ${PD_DEMO_BCRYPT_STRENGTH:10}
+  demo:
+    courier-pool:
+      count: ${PD_DEMO_COURIER_ACCOUNT_COUNT:0}
+      username-prefix: ${PD_DEMO_COURIER_USERNAME_PREFIX:perf-courier-}
+      password: ${PD_DEMO_COURIER_ACCOUNT_PASSWORD:}
+      region-scopes: ["${PD_DEMO_COURIER_REGION_SCOPE:demo-region}"]
+    users:
+      merchant:
+        username: ${PD_DEMO_MERCHANT_USERNAME:merchant-demo}
+        password: ${PD_DEMO_MERCHANT_PASSWORD:}
+        role: MERCHANT
+      courier:
+        username: ${PD_DEMO_COURIER_USERNAME:courier-demo}
+        password: ${PD_DEMO_COURIER_PASSWORD:}
+        role: COURIER
+      ops-viewer:
+        username: ${PD_DEMO_OPS_VIEWER_USERNAME:ops-viewer-demo}
+        password: ${PD_DEMO_OPS_VIEWER_PASSWORD:}
+        role: OPS_VIEWER
+      ops-approver:
+        username: ${PD_DEMO_OPS_APPROVER_USERNAME:ops-approver-demo}
+        password: ${PD_DEMO_OPS_APPROVER_PASSWORD:}
+        role: OPS_APPROVER
+      ops-approver-backup:
+        username: ${PD_DEMO_OPS_APPROVER_BACKUP_USERNAME:ops-approver-backup-demo}
+        password: ${PD_DEMO_OPS_APPROVER_BACKUP_PASSWORD:}
+        role: OPS_APPROVER
+      ops-admin:
+        username: ${PD_DEMO_OPS_ADMIN_USERNAME:ops-admin-demo}
+        password: ${PD_DEMO_OPS_ADMIN_PASSWORD:}
+        role: OPS_ADMIN

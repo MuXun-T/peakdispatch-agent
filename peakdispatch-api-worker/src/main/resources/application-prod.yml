@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:peakdispatch_prod}?useSSL=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+
+peakdispatch:
+  runtime:
+    data-mode: production
+  redis:
+    environment: ${PD_ENV:production}
+  security:
+    offer-encryption-key: ${PEAKDISPATCH_OFFER_ENCRYPTION_KEY:}

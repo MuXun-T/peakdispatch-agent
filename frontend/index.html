@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3f5f4" />
+    <title>PeakDispatch Operations</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard" aria-label="PeakDispatch operations home">
+          <span class="brand-mark">PD</span>
+          <span><strong>PeakDispatch</strong><small>OPERATIONS</small></span>
+        </a>
+        <nav class="navigation" aria-label="Operations sections">
+          <button class="nav-link active" data-view="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+          <button class="nav-link" data-view="timeline"><span class="nav-icon">≋</span>Timeline</button>
+          <button class="nav-link" data-view="policies"><span class="nav-icon">⚙</span>Dispatch policies</button>
+          <button class="nav-link" data-view="replays"><span class="nav-icon">⟳</span>Simulation replays</button>
+          <button class="nav-link" data-view="knowledge"><span class="nav-icon">▤</span>Knowledge</button>
+          <button class="nav-link" data-view="agent"><span class="nav-icon">AI</span>Agent</button>
+        </nav>
+        <div class="sidebar-foot"><span class="live-dot"></span> Dispatch services <strong>Connected</strong></div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div class="breadcrumb"><span>Operations</span><span class="slash">/</span><strong id="view-title">Dashboard</strong></div>
+          <form class="auth-bar" id="auth-form">
+            <span class="connection-state" id="connection-state">Credentials required</span>
+            <label class="sr-only" for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" placeholder="Username" value="ops-viewer-demo" />
+            <label class="sr-only" for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" required />
+            <button class="button button-dark" type="submit">Connect</button>
+          </form>
+        </header>
+
+        <main>
+          <div class="page-toolbar">
+            <div>
+              <h1 id="page-heading">Operations overview</h1>
+              <p class="page-meta">Region <strong id="region-meta">demo-region</strong><span class="meta-separator">·</span>Snapshot <strong id="snapshot-meta">Not loaded</strong></p>
+            </div>
+            <div class="toolbar-controls">
+              <label>Region<input id="region-id" value="demo-region" maxlength="64" /></label>
+              <label>From<input id="from-date" type="datetime-local" /></label>
+              <label>To<input id="to-date" type="datetime-local" /></label>
+              <button class="button button-primary" id="refresh-dashboard" type="button">Refresh</button>
+            </div>
+          </div>
+
+          <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+          <section class="view-panel" id="view-dashboard">
+            <div class="section-heading"><div><h2>Dispatch health</h2><span id="window-meta">Select a reporting window</span></div><span class="source-tag">MYSQL SNAPSHOT</span></div>
+            <div class="metric-grid" id="metrics-grid"></div>
+            <div class="dashboard-bottom">
+              <section class="data-section">
+                <div class="section-heading compact"><h2>Order lifecycle</h2><span>Orders created in range</span></div>
+                <div class="lifecycle-list" id="lifecycle-list"></div>
+              </section>
+              <section class="data-section capacity-section">
+                <div class="section-heading compact"><h2>Regional capacity</h2><span>Current courier state</span></div>
+                <div class="capacity-total"><strong id="capacity-total">—</strong><span>available slots</span></div>
+                <div class="capacity-bar"><span id="capacity-used"></span></div>
+                <div class="capacity-legend"><span><i class="legend-committed"></i>Committed <b id="capacity-committed">—</b></span><span><i class="legend-reserved"></i>Reserved <b id="capacity-reserved">—</b></span><span><i class="legend-free"></i>Available <b id="capacity-free">—</b></span></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view-panel" id="view-timeline" hidden>
+            <div class="section-heading"><div><h2>Order and dispatch timeline</h2><span>Events, offers, attempts and policy snapshots</span></div></div>
+            <form class="inline-form" id="timeline-form"><label>Order ID<input id="timeline-order-id" required placeholder="UUID" /></label><button class="button button-primary" type="submit">Load timeline</button></form>
+            <div class="table-wrap"><table><thead><tr><th>Time</th><th>Type</th><th>Source</th><th>Actor</th><th>Version</th><th>Details</th></tr></thead><tbody id="timeline-rows"><tr><td colspan="6" class="empty-cell">Enter an order ID.</td></tr></tbody></table></div>
+          </section>
+
+          <section class="view-panel" id="view-policies" hidden>
+            <div class="section-heading"><div><h2>Dispatch policies</h2><span>Versioned configuration by region</span></div><button class="button button-secondary" id="refresh-policies" type="button">Refresh list</button></div>
+            <div class="policy-layout">
+              <section class="data-section">
+                <div class="section-heading compact"><h2>Policy history</h2><span id="active-policy-label">Active policy not loaded</span></div>
+                <div class="table-wrap"><table><thead><tr><th>Version</th><th>Status</th><th>Created by</th><th>Actions</th></tr></thead><tbody id="policy-rows"><tr><td colspan="4" class="empty-cell">Connect to load policies.</td></tr></tbody></table></div>
+                <form class="inline-form rollback-form" id="rollback-form"><label>Restore from version<input id="rollback-version" type="number" min="1" required /></label><button class="button button-secondary" type="submit">Create rollback version</button></form>
+              </section>
+              <section class="data-section editor-section">
+                <div class="section-heading compact"><h2>New draft</h2><span>Configuration JSON</span></div>
+                <textarea id="policy-json" spellcheck="false" aria-label="Policy configuration"></textarea>
+                <div class="form-actions"><button class="button button-primary" id="create-policy" type="button">Save draft</button><button class="button button-quiet" id="validate-policy-json" type="button">Validate JSON</button></div>
+                <div class="result-line" id="policy-validation"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view-panel" id="view-replays" hidden>
+            <div class="section-heading"><div><h2>Simulation replays</h2><span>Deterministic dispatch scenarios</span></div></div>
+            <form class="replay-form" id="replay-form">
+              <label>Scenario<input id="scenario-id" value="weekday-lunch" pattern="[A-Za-z0-9_-]{1,64}" required /></label>
+              <label>Seed<input id="replay-seed" type="number" value="20261012" required /></label>
+              <label>Orders<input id="order-count" type="number" min="1" max="500" value="80" required /></label>
+              <label>Couriers<input id="courier-count" type="number" min="1" max="200" value="30" required /></label>
+              <button class="button button-primary" type="submit">Run replay</button>
+            </form>
+            <div class="replay-output" id="replay-output"><div class="empty-state">Replay results will appear here.</div></div>
+            <form class="inline-form compare-form" id="compare-form"><label>First replay ID<input id="compare-first" required /></label><label>Second replay ID<input id="compare-second" required /></label><button class="button button-secondary" type="submit">Compare</button><span id="compare-result"></span></form>
+          </section>
+
+          <section class="view-panel" id="view-knowledge" hidden>
+            <div class="section-heading"><div><h2>Knowledge base</h2><span>Indexed operations documents and citations</span></div><button class="button button-secondary" id="refresh-documents" type="button">Refresh documents</button></div>
+            <section class="data-section search-section">
+              <form class="inline-form" id="knowledge-search-form"><label>Search query<input id="knowledge-query" required placeholder="Search SOP content" /></label><button class="button button-primary" type="submit">Search</button></form>
+              <div class="index-meta" id="index-meta">Active index not loaded</div>
+              <div class="citation-list" id="citation-list"><div class="empty-state">No search performed.</div></div>
+            </section>
+            <div class="knowledge-layout">
+              <section class="data-section">
+                <div class="section-heading compact"><h2>Documents</h2><span>Active in selected region</span></div>
+                <div class="document-list" id="document-list"><div class="empty-state">Connect to load documents.</div></div>
+              </section>
+              <section class="data-section editor-section">
+                <div class="section-heading compact"><h2>Publish document</h2><span>New version</span></div>
+                <form class="document-form" id="document-form">
+                  <label>External key<input id="document-key" required maxlength="255" /></label>
+                  <label>Title<input id="document-title" required maxlength="512" /></label>
+                  <div class="field-row"><label>Category<input id="document-category" value="SOP" required maxlength="64" /></label><label>Section<input id="document-section" value="Dispatch" /></label></div>
+                  <label>Regions<input id="document-regions" value="demo-region" required /></label>
+                  <label>Content<textarea id="document-content" required rows="5"></textarea></label>
+                  <button class="button button-primary" type="submit">Publish and index</button>
+                </form>
+              </section>
+            </div>
+          </section>
+
+          <section class="view-panel" id="view-agent" hidden>
+            <div class="section-heading"><div><h2>Operations assistant</h2><span id="agent-session-label">New conversation</span></div><button class="button button-secondary" id="new-agent-session" type="button">New conversation</button></div>
+            <div class="agent-layout">
+              <section class="agent-conversation" aria-label="Agent conversation">
+                <div class="agent-messages" id="agent-messages" aria-live="polite"><div class="empty-state">Start a conversation.</div></div>
+                <form class="agent-composer" id="agent-chat-form">
+                  <label class="sr-only" for="agent-message">Message</label>
+                  <textarea id="agent-message" rows="3" maxlength="4000" placeholder="Ask about operations, an order, dispatch, or an SOP" required></textarea>
+                  <button class="button button-primary" id="agent-send" type="submit">Send</button>
+                </form>
+              </section>
+              <aside class="agent-activity" aria-label="Agent run activity">
+                <div class="section-heading compact"><h2>Run activity</h2><span id="agent-run-state">Idle</span></div>
+                <div class="agent-events" id="agent-events"><div class="empty-state">Agent events will appear here.</div></div>
+              </aside>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

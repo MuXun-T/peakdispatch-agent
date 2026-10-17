@@ -1,0 +1,24 @@
+﻿{
+    "generatedAtUtc":  "2026-10-15T12:51:51.6496429Z",
+    "status":  "FAIL",
+    "filesChecked":  223,
+    "isolationChecks":  {
+                            "productionProfile":  true,
+                            "dedicatedProductionDatabase":  true,
+                            "productionRedisNamespace":  true,
+                            "simulationProfile":  true,
+                            "composeUsesSimulationNamespace":  true
+                        },
+    "findings":  [
+                     {
+                         "file":  ".env",
+                         "line":  4,
+                         "type":  "known-credential-pattern"
+                     },
+                     {
+                         "file":  ".env",
+                         "line":  4,
+                         "type":  "literal-secret-assignment"
+                     }
+                 ]
+}

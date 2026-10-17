@@ -1,0 +1,13 @@
+{
+  "generatedAtUtc": "2026-10-13T12:38:39.2077184Z",
+  "status": "NOT RUN",
+  "procedure": "scripts/restore-drill.ps1",
+  "rpoTargetHours": 24,
+  "rtoTargetHours": 4,
+  "backupIntegrityCheck": "NOT RUN",
+  "databaseRestore": "NOT RUN",
+  "redisRebuild": "NOT RUN",
+  "rtoStatus": "NOT RUN",
+  "reason": "No validated backup archive, MySQL client, isolated recovery start script, or health URL was supplied. The script requires all of these before measuring database restore, Redis projection rebuild, and application readiness.",
+  "secretsPrinted": false
+}
